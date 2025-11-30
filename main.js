@@ -6,6 +6,7 @@
  * Each employee has a Czech first name and surname (based on gender), gender, birthdate 
  * (the age is strictly between min and max) and weekly workload.
  * Age is calculated using 365.25 days per year.
+ * Birthdates are guaranteed to be unique.
  * @param {object} dtoIn contains count of employees, age limit of employees {min, max}
  * @returns {Array} of employees
  */
@@ -26,9 +27,13 @@ export function main(dtoIn) {
     const maxAge = dtoIn.age.max;
   
     const employees = [];
-  
-    // main loop – repeat x times based on input
-    for (let i = 0; i < count; i++) {
+
+    // set for already used birthdates (ensures uniqueness)
+    const usedBirthdates = new Set();
+
+    // main loop – repeat 'count' times (or more if there is more duplicate birthdate)
+    let i = 0;
+    while (employees.length < count) {
       let gender = "";
       let firstName = "";
       let lastName = "";
@@ -72,6 +77,15 @@ export function main(dtoIn) {
       // random workload
       let workloadIndex = Math.floor(Math.random() * workloads.length);
       workload = workloads[workloadIndex];
+
+      // check for duplicate birthdate
+      if (usedBirthdates.has(birthdate)) {
+        // duplicate = skip this employee and try again in next iteration
+        continue;
+      }
+
+      // no duplicate = save birthdate and add employee
+      usedBirthdates.add(birthdate);
   
       // create employee and add it directly to result
       let employee = {
