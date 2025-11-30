@@ -72,8 +72,7 @@ export function main(dtoIn) {
       let daysBack = Math.floor(targetAge * daysInYear);
       let birthDate = new Date(today.getTime() - daysBack * 24 * 60 * 60 * 1000);
       birthDate.setUTCHours(0, 0, 0, 0);
-      birthdate = birthDate.toISOString();
-  
+      birthdate = birthDate.toISOString().split("T")[0];  
       // random workload
       let workloadIndex = Math.floor(Math.random() * workloads.length);
       workload = workloads[workloadIndex];
