@@ -31,9 +31,14 @@ export function main(dtoIn) {
     // set for already used birthdates (ensures uniqueness)
     const usedBirthdates = new Set();
 
-    // main loop – repeat 'count' times (or more if there is more duplicate birthdate)
-    let i = 0;
-    while (employees.length < count) {
+    // safety counter – prevents infinite loop when all possible dates are used
+    let attempts = 0;
+    const maxAttempts = count * 20;
+
+    // main loop – repeat until we have enough unique employees
+    while (employees.length < count && attempts < maxAttempts) {
+      attempts++;   // prevent infinite loop
+
       let gender = "";
       let firstName = "";
       let lastName = "";
@@ -72,14 +77,15 @@ export function main(dtoIn) {
       let daysBack = Math.floor(targetAge * daysInYear);
       let birthDate = new Date(today.getTime() - daysBack * 24 * 60 * 60 * 1000);
       birthDate.setUTCHours(0, 0, 0, 0);
-      birthdate = birthDate.toISOString().split("T")[0];  
+      birthdate = birthDate.toISOString().split("T")[0];
+  
       // random workload
       let workloadIndex = Math.floor(Math.random() * workloads.length);
       workload = workloads[workloadIndex];
 
       // check for duplicate birthdate
       if (usedBirthdates.has(birthdate)) {
-        // duplicate = skip this employee and try again in next iteration
+        // duplicate = skip this employee and try again
         continue;
       }
 
