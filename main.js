@@ -31,14 +31,8 @@ export function main(dtoIn) {
     // set for already used birthdates (ensures uniqueness)
     const usedBirthdates = new Set();
 
-    // safety counter – prevents infinite loop when all possible dates are used
-    let attempts = 0;
-    const maxAttempts = count * 20;
-
-    // main loop – repeat until we have enough unique employees
-    while (employees.length < count && attempts < maxAttempts) {
-      attempts++;   // prevent infinite loop
-
+    // main loop – exactly 'count' employees
+    for (let i = 0; i < count; i++) {
       let gender = "";
       let firstName = "";
       let lastName = "";
@@ -65,32 +59,30 @@ export function main(dtoIn) {
       if (gender === "male") {
         let index = Math.floor(Math.random() * maleSurnames.length);
         lastName = maleSurnames[index];
-      } else {
+      }
+      else {
         let index = Math.floor(Math.random() * femaleSurnames.length);
         lastName = femaleSurnames[index];
       }
   
       // calculate birthdate so age is exactly between minAge and maxAge
-      const today = new Date();
-      const daysInYear = 365.25;
-      let targetAge = minAge + Math.floor(Math.random() * (maxAge - minAge + 1));
-      let daysBack = Math.floor(targetAge * daysInYear);
-      let birthDate = new Date(today.getTime() - daysBack * 24 * 60 * 60 * 1000);
-      birthDate.setUTCHours(0, 0, 0, 0);
+      let birthDate;
+      do {
+        const today = new Date();
+        const daysInYear = 365.25;
+        let targetAge = minAge + Math.floor(Math.random() * (maxAge - minAge + 1));
+        let daysBack = Math.floor(targetAge * daysInYear);
+        birthDate = new Date(today.getTime() - daysBack * 24 * 60 * 60 * 1000);
+        birthDate.setUTCHours(0, 0, 0, 0);
+      } 
+      while (usedBirthdates.has(birthDate.toISOString().split("T")[0]));
+
       birthdate = birthDate.toISOString().split("T")[0];
+      usedBirthdates.add(birthdate);
   
       // random workload
       let workloadIndex = Math.floor(Math.random() * workloads.length);
       workload = workloads[workloadIndex];
-
-      // check for duplicate birthdate
-      if (usedBirthdates.has(birthdate)) {
-        // duplicate = skip this employee and try again
-        continue;
-      }
-
-      // no duplicate = save birthdate and add employee
-      usedBirthdates.add(birthdate);
   
       // create employee and add it directly to result
       let employee = {
